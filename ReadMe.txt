@@ -1,0 +1,3 @@
+--to compile everything- use testtotal.cpp as main and include all other cpps excluding track_test, main, brake
+--to test the track use track_test.cpp as main and include lego_robot.cpp and gpio.cpp
+--compile brake.cpp w/ gpio, lego_robot before testing and run it if CTRL-C doesnt stop the bot
