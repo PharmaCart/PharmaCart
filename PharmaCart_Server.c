@@ -276,7 +276,9 @@ int main()
                         strcpy(c_queue[c_num].txt, cmd);
                         c_num++;
                     }
-                    strcpy(cmd, clear_string(cmd, BUFFSIZE));
+                    char tmp[BUFFSIZE];
+                    strcpy(tmp, clear_string(cmd,BUFFSIZE));
+                    strcpy(cmd, tmp);
                 }
             }
             // add finishing commands to command queue
