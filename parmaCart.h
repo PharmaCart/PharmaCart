@@ -15,6 +15,7 @@
 #include <string>
 #include "beacon.h"
 #include <mraa/gpio.h>
+#include "recv.h"
 
 
 
@@ -51,6 +52,7 @@ public:
     void updateMap();
     void printMap();
     int get_beacon_ID(int IR_count);
+    int get_pin();
     
 private:
     int gpio_pin;
