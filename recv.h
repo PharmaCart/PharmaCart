@@ -30,6 +30,11 @@ It serves as the header file for the infrared receiver code
 #include <unistd.h>
 #include <math.h>
 
+using namespace std;
+
+// Definitions
+#define INTERVAL 8	// For defining interval of lowest milliseconds
+
 
 
 
