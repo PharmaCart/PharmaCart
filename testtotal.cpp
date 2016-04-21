@@ -18,6 +18,7 @@
 #include <string>
 #include "SquareSetup.h"
 #include <mraa/gpio.h>
+#include <time.h>
 
 using namespace std;
 
@@ -40,6 +41,8 @@ static volatile int run_flag_IR = 1;
 // For detecting ctr C
 sig_atomic_t volatile run_flag = 1;
 
+clock_t start_wait_time;
+
 
 // Initialization of the cart
 parmaCart cart(26);
@@ -52,6 +55,17 @@ beacon b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12;
 
 
 /////// Global Function Initialization  ////////////
+
+
+bool wait()
+{
+	if (clock() > (start_wait_time + (2 * CLOCKS_PER_SEC)))
+	{
+		return true;
+	}
+	else
+	return false;
+}
 
 // handler for GPIO interrupt
 void do_when_interruptedIR(void *)
@@ -78,7 +92,7 @@ int main(int argc, char * argv[])
     // Local Variable Declaration and Initialization
     ///////////////////////////////////
     // Decare a clock for timing
-    clock_t init_time;
+    start_wait_time = clock();
     bool time_to_read;
     bool stopped;
     int ID = 0;
@@ -187,7 +201,7 @@ int main(int argc, char * argv[])
                 
                 // If IR signal gets sensed then we will stop the robot and wait for down time to signify the beginning of a message
                 time_to_read = false;
-                if (!run_flag_IR) //&& ((clock() > (stoptime + (.5 * CLOCKS_PER_SEC))) || starter))
+                if (!run_flag_IR && wait()) //&& ((clock() > (stoptime + (.5 * CLOCKS_PER_SEC))) || starter))
                 {
                     cout << "reading" << endl;
                     brake_A();
@@ -195,10 +209,35 @@ int main(int argc, char * argv[])
                     stopped = true;
                     run_flag_IR = 1;		// reset the ISR
                     time_to_read = true;
-                    cout << "First Rising Edge Detected" << endl;
+                    //cout << "First Rising Edge Detected" << endl;
                     starter = false;
                     
                 }
+
+		// Setup/Initialize the receiver for IR
+                int gpio_Pin = cart.get_pin();
+                IR_receive receiver(gpio_Pin);
+                
+                // declare beacon ID variable
+		int beacID;
+                
+            	if(time_to_read)
+            	{
+            		beacID = receiver.recv();
+            		start_wait_time = clock();
+            	}
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                /*
+                
                 
                 // Initialize a start time to the clock
                 init_time = clock();
@@ -282,7 +321,7 @@ int main(int argc, char * argv[])
                     }
                 }
                 
-                
+                */
                 
                 usleep(10000);
                 
