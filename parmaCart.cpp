@@ -25,7 +25,10 @@ parmaCart::parmaCart(int pin)
 }
 
 
-
+parmaCart::get_pin()
+{
+    return gpio_pin;
+}
 
 //IMPORTANT: This is only valid for square setup
 bool parmaCart::validBeacon(int ID) {
