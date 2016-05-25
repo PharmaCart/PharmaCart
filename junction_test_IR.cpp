@@ -256,6 +256,7 @@ int main(int argc, char* argv[])
 				*/
 				usleep(1000000);
 				cout<< "Beacon Read is Beacon #"<< beacID << endl;
+				r_com.update_location(beacID);
                 start_wait_time = clock();      // restart the start wait time to wait another period of time
                 time_to_read = false;
                 cout << "Done Reading" << endl;
