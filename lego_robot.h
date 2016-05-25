@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <mraa.h>
+#include "gpio.h"
 
 extern mraa_pwm_context pwm1, pwm2;
 extern mraa_gpio_context A1, A2, B1, B2, standbyPin;
@@ -31,5 +32,10 @@ void stop();
 void set_speed(float);
 int offLine(int L, int R);
 int turn(int L, int R, bool turn);
+int msleep(unsigned long milisec);
+int __nsleep(const struct timespec *req, struct timespec *rem);
+int left90(GPIO photoR, GPIO photoM, GPIO photoL);
+int right90(GPIO photoR, GPIO photoM, GPIO photoL);
+
 
 #endif //LEGO_ROBOT_H

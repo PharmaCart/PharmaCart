@@ -170,3 +170,92 @@ void set_speed(float speed)
 	mraa_pwm_write(pwm1, speed);
 	mraa_pwm_write(pwm2, speed);
 }
+
+
+int offLine(int L, int R)
+{
+    if(L < 3 || R < 3)
+        return 1;
+    else
+        return 0;
+}
+
+int turn(int L, int R, bool turn)
+{
+	int sleep_time;
+	/*
+	if (turn){
+		//printf("corner turn\n");
+		sleep_time = 180000;
+	}
+	else{
+		//printf("normal turn\n");
+		sleep_time = 180000;
+	}
+	*/
+
+
+    if(L < 3 && R > 3){
+        printf("turn L\n");
+
+		brake_A();
+		msleep(180);
+		reverse_A();
+	}
+	if (R < 3 && L > 3){
+		printf("turn R\n");
+		//printf("sleep time:%d", sleep_time);
+		brake_B();
+		//printf("before sleep\n");
+		msleep(180);
+		//printf("after sleep\n");
+		reverse_B();
+    }
+    return 0;
+}
+
+int __nsleep(const struct timespec *req, struct timespec *rem)
+{
+	struct timespec temp_rem;
+	if (nanosleep(req, rem) == -1)
+		__nsleep(rem, &temp_rem);
+	else
+		return 1;
+}
+
+int msleep(unsigned long milisec)
+{
+	struct timespec req = { 0 }, rem = { 0 };
+	time_t sec = (int)(milisec / 1000);
+	milisec = milisec - (sec * 1000);
+	req.tv_sec = sec;
+	req.tv_nsec = milisec * 1000000L;
+	__nsleep(&req, &rem);
+	return 1;
+}
+
+int right90(GPIO photoR, GPIO photoM, GPIO photoL){
+
+	forward_B();
+	reverse_A();
+	while (!gpio_read(photoL) || !gpio_read(photoM) || !gpio_read(photoR)){}
+	while (gpio_read(photoR)){}
+	brake_A();
+	brake_B();
+	return 0;
+}
+
+int left90(GPIO photoR, GPIO photoM, GPIO photoL){
+
+	forward_A();
+	reverse_B();
+	while (!gpio_read(photoL) || !gpio_read(photoM) || !gpio_read(photoR)){}
+	while (gpio_read(photoL)){}
+	brake_A();
+	brake_B();
+	return 0;
+}
+
+	
+
+
