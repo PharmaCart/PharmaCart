@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     // Local Variable Declaration and Initialization
     ///////////////////////////////////
     // Decare a clock for timing
-    
+   
     Robot_Communication r_com(argv[1]);
     
     int ID = 0;
@@ -133,6 +133,10 @@ int main(int argc, char* argv[])
     int i_count = 0;
     while (run_flag)
     {
+    	string command;
+        command = r_com.get_next_command();
+        while (command != "end of file")
+        {
             if (stopped)
             {
 				
@@ -264,8 +268,11 @@ int main(int argc, char* argv[])
 					wait_mult = 3;
                 
             }
-            
+            // get next command
+            command = r_com.get_next_command();
         }
+        //out of commands, connect to server
+        r_com.request_commands();
     
 	brake_A();
 	brake_B();
