@@ -248,12 +248,12 @@ int main(int argc, char* argv[])
             {
                 cout << "trying to receive" << endl;
                 beacID = receiver.recv();   // read IR signal until something is received
-				/* 
+				
 				if ( beacID == 69);
 				{
 					continue;
 				}
-				*/
+				
 				usleep(1000000);
 				cout<< "Beacon Read is Beacon #"<< beacID << endl;
 				r_com.update_location(beacID);
