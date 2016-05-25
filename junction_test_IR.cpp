@@ -271,12 +271,12 @@ int main(int argc, char* argv[])
             // get next command
             command = r_com.get_next_command();
         }
-        //out of commands, connect to server
-        r_com.request_commands();
-    
 	brake_A();
 	brake_B();
 	cout << "end of main" << endl;
+	
+	//out of commands, connect to server
+        r_com.request_commands();
     
     }
 
