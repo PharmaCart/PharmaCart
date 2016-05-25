@@ -129,12 +129,10 @@ int main(int argc, char* argv[])
     
     junction = 0;
     atJunction = false;
+    stopped = true;
+    int i_count = 0;
     while (run_flag)
     {
-        stopped = true;
-        int i_count = 0;
-        while (run_flag)
-        {
             if (stopped)
             {
 				
@@ -268,11 +266,11 @@ int main(int argc, char* argv[])
             }
             
         }
-    }
+    
 	brake_A();
 	brake_B();
 	cout << "end of main" << endl;
     
-}
+    }
 
 
