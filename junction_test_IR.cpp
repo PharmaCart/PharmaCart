@@ -2,6 +2,7 @@
 #include <signal.h>
 #include "gpio.h"
 #include "lego_robot.h"
+#include "PharmaCart_command_mgmt.h"
 #include <mraa/gpio.h>
 #include <iostream>
 
@@ -84,12 +85,14 @@ void do_when_interrupted(int sig)
 
 
 
-int main()
+int main(int argc, char* argv[])
 {
     ///////////////////////////////////
     // Local Variable Declaration and Initialization
     ///////////////////////////////////
     // Decare a clock for timing
+    
+    Robot_Communication r_com(argv[1]);
     
     int ID = 0;
     start_wait_time = clock();
