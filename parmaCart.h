@@ -15,7 +15,6 @@
 #include <string>
 #include "beacon.h"
 #include <mraa/gpio.h>
-#include "recv.h"
 
 
 

@@ -24,11 +24,11 @@ parmaCart::parmaCart(int pin)
     mraa_gpio_dir(receiver, MRAA_GPIO_IN);
 }
 
-
-parmaCart::get_pin()
+int parmaCart::get_pin()
 {
     return gpio_pin;
 }
+
 
 //IMPORTANT: This is only valid for square setup
 bool parmaCart::validBeacon(int ID) {
