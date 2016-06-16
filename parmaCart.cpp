@@ -30,50 +30,30 @@ int parmaCart::get_pin()
 }
 
 
-//IMPORTANT: This is only valid for square setup
-bool parmaCart::validBeacon(int ID) {
-    if (abs(ID - currentBeacon->beaconID) %6 ==1)
+//function to reject invalid input
+bool parmaCart::validBeacon(int ID)
+{
+    if (currentBeacon->distanceToOthers[ID] == 1)
+        return true;
+    else if(currentBeacon->beaconID == ID)
         return true;
     else
         return false;
 }
 
-//function is called after every tick, if statement ensures correct coordinate is increased
-void parmaCart::updateCoordinates() {
-    
-    if (nextBeacon == NULL)
-        return;
-    
-    if (currentBeacon->x == nextBeacon->x && nextBeacon->y > currentBeacon->y) {
-        y++;
-    }
-    else if (currentBeacon->x == nextBeacon->x && nextBeacon->y < currentBeacon->y)
-        y--;
-    else if (currentBeacon->y == nextBeacon->y && nextBeacon->x > currentBeacon->x)
-        x++;
-    else
-        x--;
-    
-    //check to see if cart has passed a beacon w/o receiving transmission
-    for (int i = 0; i < 8; i++)
-    {
-        if (x == allBeacons[i]->x && y == allBeacons[i]->y)
-            setCurrentBeacon(i);
-    }
-    
-    updateMap();
-}
 
-void parmaCart::setCurrentBeacon(int ID) {
+void parmaCart::setCurrentBeacon(int ID)
+{
     //disregard invalid inputs
-    if (ID > 7 || ID < 0)
+    if (ID > 6 || ID < 0)
         return;
     if (validBeacon(ID)) {
         //update current beacon and position
+        previousBeacon =currentBeacon;
         currentBeacon = allBeacons[ID];
         x = currentBeacon->x;
         y = currentBeacon->y;
-        
+        setDirection(previousBeacon->beaconID, currentBeacon->beaconID);
         //update next beacon
         if (route.empty() == 0 && ID == route.front()->beaconID)
         {
@@ -83,43 +63,68 @@ void parmaCart::setCurrentBeacon(int ID) {
         //update map
         updateMap();
     }
-    ///Incorporate code to make the cart stop and wait for a retransmission.
+}
+
+void parmaCart::setDirection(int previous, int current)
+{
+    if (((current == 1 || current ==2) && previous > current)|| (current == 0 && previous ==1) || ((current == 4 || current == 5) && previous > current) || (current == 5 && previous == 0) || (current == 3 && previous == 4))
+    {
+        direction = 1;
+    }
+    else if (current == 6 && (previous == 0 || previous == 5))
+    {
+        direction = 2;
+    }
+    else if (current == 6 && (previous == 2 || previous == 3))
+    {
+        direction = 3;
+    }
+    else
+    {
+        direction = 0;
+    }
 }
 
 
 void parmaCart::setRoute(int ID) {
     
     //return if invalid input
-    if (ID > 7 || ID < 0)
+    if (ID > 6 || ID < 0)
         return;
     destination = allBeacons[ID];
     
     //return if already at the destination
-    if (currentBeacon->beaconID == ID){
+    if (currentBeacon->beaconID == ID)
+    {
         return;
     }
     //set route
     beacon *current = currentBeacon;
-    while (current->beaconID != ID) {
+    while (current->beaconID != ID)
+    {
         
-        if (current->westBeacon->distanceToOthers[ID] <= current->eastBeacon->distanceToOthers[ID] && current->westBeacon->distanceToOthers[ID] <= current->northBeacon->distanceToOthers[ID] && current->westBeacon->distanceToOthers[ID] <= current->southBeacon->distanceToOthers[ID]) {
+        if (current->westBeacon->distanceToOthers[ID] == min({currentBeacon->westBeacon->distanceToOthers[ID], currentBeacon->eastBeacon->distanceToOthers[ID], currentBeacon->northBeacon->distanceToOthers[ID], currentBeacon->southBeacon->distanceToOthers[ID]}))
+        {
             route.push_back(current->westBeacon);
             current = current->westBeacon;
         }
         
-        else if(current->eastBeacon->distanceToOthers[ID] <= current->westBeacon->distanceToOthers[ID] && current->eastBeacon->distanceToOthers[ID] <= current->northBeacon->distanceToOthers[ID] && current->eastBeacon->distanceToOthers[ID] <= current->southBeacon->distanceToOthers[ID]) {
+        else if(current->eastBeacon->distanceToOthers[ID] == min({currentBeacon->westBeacon->distanceToOthers[ID], currentBeacon->eastBeacon->distanceToOthers[ID], currentBeacon->northBeacon->distanceToOthers[ID], currentBeacon->southBeacon->distanceToOthers[ID]}))
+        {
             route.push_back(current->eastBeacon);
             current = current->eastBeacon;
         }
-        else if(current->northBeacon->distanceToOthers[ID] <= current->westBeacon->distanceToOthers[ID] && current->northBeacon->distanceToOthers[ID] <= current->eastBeacon->distanceToOthers[ID] && current->northBeacon->distanceToOthers[ID] <= current->southBeacon->distanceToOthers[ID]) {
+        else if(current->northBeacon->distanceToOthers[ID] == min({currentBeacon->westBeacon->distanceToOthers[ID], currentBeacon->eastBeacon->distanceToOthers[ID], currentBeacon->northBeacon->distanceToOthers[ID], currentBeacon->southBeacon->distanceToOthers[ID]}))
+        {
             route.push_back(current->northBeacon);
             current = current->northBeacon;
         }
-        else if(current->southBeacon->distanceToOthers[ID] <= current->westBeacon->distanceToOthers[ID] && current->southBeacon->distanceToOthers[ID] <= current->northBeacon->distanceToOthers[ID] && current->southBeacon->distanceToOthers[ID] <= current->eastBeacon->distanceToOthers[ID]) {
+        else if(current->southBeacon->distanceToOthers[ID] == min({currentBeacon->westBeacon->distanceToOthers[ID], currentBeacon->eastBeacon->distanceToOthers[ID], currentBeacon->northBeacon->distanceToOthers[ID], currentBeacon->southBeacon->distanceToOthers[ID]}))
+        {
             route.push_back(current->southBeacon);
             current = current->southBeacon;
         }
-        cout << current->beaconID<<"\n"; //this is for debugging purposes
+        cout << current->beaconID<<"\n"; //this is for debugging purposes, can remove it after
     }
     
     nextBeacon = route.front();
@@ -145,34 +150,42 @@ void parmaCart::reportLocation() {
     cout << "Location: (" << x << "," << y << ")" << "\n";
 }
 
-void parmaCart::initializeMap() {
-    for (int i = 0; i < 11; i++)
+void parmaCart::initializeMap()
+{
+    for (int i = 0; i < 13; i++)
     {
-        for (int j = 0; j < 11; j++)
+        for (int j = 0; j < 25; j++)
         {
             Map[i][j] = '-';
         }
     }
     
-    
-    for (int i = 0; i < 8; i++)
-    {
-        string number = to_string(i);
-        Map[10 - allBeacons[i]->y][allBeacons[i]->x] = number[0];
-    }
-    
+
+    Map[12 - 0][6] = '0';
+    Map[12 - 6][0] = '1';
+    Map[12 - 12][6] = '2';
+    Map[12 - 12][18] = '3';
+    Map[12 - 6][24] = '4';
+    Map[12 - 0][18] = '5';
+    Map[12 - 6][12] = '6';
+
 }
 
-void parmaCart::updateMap() {
+//Update Map with cart's location
+void parmaCart::updateMap()
+{
     initializeMap();
-    Map[10 - y][x] = 'P';
+    Map[12 - y][x] = 'A';
+    Map[12 - y2][x2] = 'B';
 }
 
-void parmaCart::printMap() {
+//Print Map
+void parmaCart::printMap()
+{
     cout <<"\n";
-    for (int i = 0; i < 11; ++i)
+    for (int i = 0; i < 13; ++i)
     {
-        for (int j = 0; j < 11; ++j)
+        for (int j = 0; j < 25; ++j)
         {
             cout << Map[i][j]<< " ";
         }
@@ -181,7 +194,44 @@ void parmaCart::printMap() {
     cout <<"\n";
 }
 
+void parmaCart::collisionAvoidance(int otherCurrentBeacon, int otherNextBeacon, int otherDestination)
+{
+    //situation in which carts need to through eachother. Switch destinations
+    if (currentBeacon->beaconID == otherNextBeacon && nextBeacon->beaconID == otherCurrentBeacon)
+    {
+        setRoute(otherDestination);
+    }
+    
+    //situation at junction where one cart must wait. In this case we do nothing, but for the other cart change this function to make the cart wait until the other cart reaches its next beacon
+    if (currentBeacon->beaconID == otherNextBeacon && nextBeacon->beaconID != otherCurrentBeacon)
+    {
+        return;
+    }
+}
 
+bool parmaCart::turnAround()
+{
+    if ((currentBeacon->beaconID == 6 && direction == 3 && (nextBeacon->beaconID == 2 || nextBeacon->beaconID == 3)) || (currentBeacon->beaconID == 6 && direction == 2 && (nextBeacon->beaconID == 0 || nextBeacon->beaconID == 5)))
+    {
+        return true;
+    }
+    else if ((currentBeacon->beaconID == 0 || currentBeacon->beaconID == 1 || currentBeacon->beaconID == 2 || currentBeacon->beaconID == 3 || currentBeacon->beaconID == 4 || currentBeacon->beaconID == 5) && ((nextBeacon->beaconID == (currentBeacon->beaconID + 1) % 6 && direction == 1) || (nextBeacon->beaconID == (currentBeacon->beaconID - 1) % 6 && direction == 0)))
+    {
+        return true;
+    }
+    else if ((currentBeacon->beaconID == 2 || currentBeacon->beaconID == 5) && nextBeacon->beaconID == 6 && direction == 1)
+    {
+        return true;
+    }
+    else if ((currentBeacon->beaconID == 3 || currentBeacon->beaconID == 0) && nextBeacon->beaconID == 6 && direction == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 
 int parmaCart::get_beacon_ID(int count)
